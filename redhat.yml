@@ -1,0 +1,37 @@
+      - name: install with_items
+        yum:
+            name: "{{ item.name }}"
+            state: installed
+        register: Result
+        with_items:
+            - name: zsh
+            - name: tmux
+            - name: vim-enhanced.x86_64
+            - name: git
+            - name: java-1.8.0-openjdk-devel-debug.x86_64
+
+      - name: results
+        debug: var=Result.results
+
+      - name: set zsh as default shell for vagrant user
+        command: chsh -s '/bin/zsh' "{{ user }}"
+
+      - setup:
+        become: False
+        become_user: "{{ user }}"
+
+      - name: git clone .dotfiles pyenv
+        become: False
+        become_user: "{{ user }}"
+        git:
+            repo: "{{ item.repo }}"
+            dest: "{{ item.dest }}"
+        register: Result
+        with_items:
+            - repo: https://github.com/SeijiZ/.dotfiles
+              dest: "{{ ansible_env.HOME }}/.dotfiles"
+            - repo: https://github.com/pyenv/pyenv
+              dest: "{{ ansible_env.HOME }}/.pyenv"
+
+      - name: results
+        debug: var=Result.results

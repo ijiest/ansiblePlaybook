@@ -1,0 +1,27 @@
+- name: Configure development
+  hosts: all
+  become: True
+  vars:
+      #user: ubuntu
+    server_name: localhost
+  tasks:
+      - name: debug test
+        debug:
+            msg: "{{ ansible_os_family }}"
+
+      - name: Debian handler
+        vars:
+            user: ubuntu
+        include: debian.yml
+        when: ansible_os_family == "Debian"
+
+      - name: RedHat handler
+        vars:
+            user: vagrant
+        include: redhat.yml
+        when: ansible_os_family == "RedHat"
+
+      - name: set timezone to Asia/Tokyo
+        file: src=/usr/share/zoneinfo/Asia/Tokyo dest=/etc/localtime state=link force=yes
+
+
